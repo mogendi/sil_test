@@ -10,7 +10,9 @@ class OrderSerializer(serializers.ModelSerializer):
         model = Order
 
     def get_items(self, obj: Order) -> "OrderItemSerializer":
-        return [OrderItemSerializer(item).data for item in obj.orderitems.all()]
+        return [
+            OrderItemSerializer(item).data for item in obj.orderitems.all()
+        ]  # noqa: E501
 
 
 class OrderItemSerializer(serializers.ModelSerializer):

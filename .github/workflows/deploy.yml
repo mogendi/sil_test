@@ -1,0 +1,27 @@
+name: Deploy
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - develop
+
+
+jobs:
+    deploy:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Deploy to DigitalOcean Droplet
+              uses: appleboy/ssh-action@master
+              with:
+                host: ${{secrets.HOST}}
+                username: ${{secrets.USERNAME}}
+                key: ${{secrets.KEY}}
+                script: |
+                    set -e
+                    cd sil_test
+                    git pull --ff-only
+                    poetry install
+                    poetry run python src/store/manage.py migrate
+                    cd src/store
+                    systemctl restart gunicorn
