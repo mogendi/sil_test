@@ -16,6 +16,7 @@ django-extensions = "^3.2.3"
 factory-boy = "^3.3.0"
 coverage = "^7.4.1"
 django-auth-oidc = "^0.6.0"
+gunicorn = "^22.0.0"
 
 
 [tool.poetry.group.dev.dependencies]
