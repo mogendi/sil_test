@@ -8,7 +8,7 @@ from rest_framework.viewsets import ModelViewSet
 
 class OrderViewset(ModelViewSet):
     serializer_class = OrderSerializer
-    queryset = Order.objects.all()
+    queryset = Order.objects.prefetch_related("orderitems").all()
 
     def create(self, request: Request):
         pre_validation_data = request.data.copy()

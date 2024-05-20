@@ -7,10 +7,6 @@ from product.models import Product
 class Order(BaseModel):
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
 
-    @property
-    def items(self) -> "OrderItems":
-        return self.orderitems.all()
-
 
 class OrderItems(BaseModel):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)

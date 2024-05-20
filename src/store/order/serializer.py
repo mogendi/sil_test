@@ -10,7 +10,7 @@ class OrderSerializer(serializers.ModelSerializer):
         model = Order
 
     def get_items(self, obj: Order) -> "OrderItemSerializer":
-        return [OrderItemSerializer(item).data for item in obj.items]
+        return [OrderItemSerializer(item).data for item in obj.orderitems.all()]
 
 
 class OrderItemSerializer(serializers.ModelSerializer):

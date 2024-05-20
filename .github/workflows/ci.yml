@@ -1,0 +1,85 @@
+name: Run Tests
+
+on:
+    pull_request:
+      branches:
+        - develop
+concurrency:
+    group: ${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: true
+
+jobs:
+  lints:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - uses: thaind0/envfile@v1
+        with:
+          secrets: ${{ toJSON(secrets) }}
+
+      - name: Set up python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.11
+
+      - name: Install dependecies
+        run: |
+          pipx install poetry
+          poetry install
+      - name: Run lint checks
+        run: |
+          chmod +x ./scripts/lint.sh
+          poetry run ./scripts/lint.sh
+  tests:
+    runs-on: ubuntu-latest
+    permissions: write-all
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: pass
+          POSTGRES_DB: postgres
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 3
+        ports:
+          - 5432:5432
+
+      redis:
+        image: redis
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - uses: thaind0/envfile@v1
+        with:
+           secrets: ${{ toJSON(secrets) }}
+
+      - name: Set up python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.11
+
+      - name: Install dependecies
+        run: |
+          pipx install poetry
+          poetry install
+      - name: Run tests
+        run: |
+            poetry run coverage run src/store/manage.py test src/store
+            poetry run coverage xml
+      
+      - name: Coverage
+        uses: orgoro/coverage@v3.1
+        with:
+            coverageFile: coverage.xml
+            token: ${{ secrets.GITHUB_TOKEN }}
