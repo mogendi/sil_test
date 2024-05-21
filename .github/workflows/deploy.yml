@@ -21,7 +21,7 @@ jobs:
                     set -e
                     cd sil_test
                     git pull --ff-only
-                    poetry install
-                    poetry run python src/store/manage.py migrate
+                    $HOME/.poetry/bin/poetry install
+                    $HOME/.poetry/bin/poetry run python src/store/manage.py migrate
                     cd src/store
                     systemctl restart gunicorn
