@@ -24,4 +24,4 @@ jobs:
                     $HOME/.local/bin/poetry install
                     $HOME/.local/bin/poetry run python src/store/manage.py migrate
                     cd src/store
-                    systemctl restart gunicorn
+                    systemctl restart gunicorn.socket
