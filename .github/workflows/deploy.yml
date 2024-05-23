@@ -21,11 +21,12 @@ jobs:
                     set -e
                     cd sil_test
                     git pull --ff-only
-                    $HOME/.local/bin/poetry install
-                    $HOME/.local/bin/poetry run python src/store/manage.py migrate
 
                     set -o allexport
                     source .env
+
+                    $HOME/.local/bin/poetry install
+                    $HOME/.local/bin/poetry run python src/store/manage.py migrate
                     cd src/store
 
                     systemctl restart gunicorn.service
