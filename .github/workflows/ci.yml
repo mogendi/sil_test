@@ -36,6 +36,17 @@ jobs:
     runs-on: ubuntu-latest
     permissions: write-all
 
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_USER: ${{ secrets.DB_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          POSTGRES_DB: ${{ secrets.DB_NAME }}
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 3
+        ports:
+          - 5432:5432
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
