@@ -28,7 +28,7 @@ jobs:
                     source .env
                     cd src/store
 
-                    systemctl restart gunicorn.socket
+                    systemctl restart gunicorn.service
 
                     echo "Restarting celery worker"
                     nohup ./scripts/worker.sh > nohup.out 2> nohup.err < /dev/null &
