@@ -1,7 +1,6 @@
 from celery_conf import app as celery_app
 from customer.models import Customer
-
-from src.utils.at import at_util
+from utils.at import at_util
 
 
 @celery_app.task(
