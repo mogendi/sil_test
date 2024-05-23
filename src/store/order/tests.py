@@ -1,3 +1,5 @@
+from unittest import mock
+
 from customer.factories import CustomerFactory
 from order.factories import OrderFactory
 from product.factories import ProductFactory
@@ -23,7 +25,8 @@ class orderCRUDTestCase(APITestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.json()["id"], str(order.id))
 
-    def test_order_create(self) -> None:
+    @mock.patch("order.tasks.send_conformation_sms.delay")
+    def test_order_create(self, mock_send_confirmation_sms: mock.Mock) -> None:
         order_data = {
             "customer": CustomerFactory.create().pk,
             "items": [
@@ -35,6 +38,7 @@ class orderCRUDTestCase(APITestCase):
         resp = self.client.post("/orders/", data=order_data, format="json")
         self.assertEqual(resp.status_code, 201)
         self.assertGreaterEqual(len(resp.json()["items"]), 2)
+        mock_send_confirmation_sms.assert_called()
 
     def test_order_update(self) -> None:
         order = OrderFactory.create()

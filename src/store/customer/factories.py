@@ -8,3 +8,4 @@ class CustomerFactory(factory.django.DjangoModelFactory):
 
     name = factory.Faker("sentence", nb_words=2)
     location = factory.Faker("sentence", nb_words=2)
+    phone_number = factory.Faker("sentence", nb_words=1)
