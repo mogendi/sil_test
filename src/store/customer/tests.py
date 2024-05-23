@@ -31,7 +31,14 @@ class CustomerCRUDTestCase(APITestCase):
         location = "".join(
             random.choices(string.ascii_uppercase + string.digits, k=10)
         )  # noqa :E501
-        customer_data = {"name": name, "location": location}
+        phone_number = "".join(
+            random.choices(string.ascii_uppercase + string.digits, k=10)
+        )  # noqa :E501
+        customer_data = {
+            "name": name,
+            "location": location,
+            "phone_number": phone_number,
+        }
 
         resp = self.client.post("/customers/", data=customer_data)
         self.assertEqual(resp.status_code, 201)
