@@ -12,6 +12,8 @@ This API uses celery to handle background services like sending confirmation SMS
 
 ### Error logging
 Errors and endpoint performance profiles are logges on sentry.
+![image](https://github.com/mogendi/sil_test/assets/40548350/990918af-977d-4d97-9bc6-f3cde144412b)
+
 
 ### CI/CD
 Coverage is checked on every PR and is required to be >80% for merges. Deploys are done directly to a digital ocean droplet after merge.
