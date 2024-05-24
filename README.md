@@ -14,4 +14,4 @@ This API uses celery to handle background services like sending confirmation SMS
 Errors and endpoint performance profiles are logges on sentry.
 
 ### CI/CD
-Coverage is checked on every PR and is required to be >80% for merges. Deploys are done directly to a digiatl ocean droplet after merge.
+Coverage is checked on every PR and is required to be >80% for merges. Deploys are done directly to a digital ocean droplet after merge.
