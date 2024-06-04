@@ -1,11 +1,16 @@
 import random
 import string
 
-from customer.factories import CustomerFactory
+from customer.factories import CustomerFactory, UserFactory
+from django.contrib.auth.models import User
 from rest_framework.test import APITestCase
 
 
 class CustomerCRUDTestCase(APITestCase):
+    def setUp(self) -> None:
+        user: User = UserFactory.create()
+        self.client.force_authenticate(user=user)
+
     def test_customer_list(self) -> None:
         customers = CustomerFactory.create_batch(size=5)
         customer_ids = [str(customer.id) for customer in customers]
@@ -26,14 +31,14 @@ class CustomerCRUDTestCase(APITestCase):
 
     def test_customer_create(self) -> None:
         name = "".join(
-            random.choices(string.ascii_uppercase + string.digits, k=10)
-        )  # noqa :E501
+            random.choices(string.ascii_uppercase + string.digits, k=10),
+        )
         location = "".join(
-            random.choices(string.ascii_uppercase + string.digits, k=10)
-        )  # noqa :E501
+            random.choices(string.ascii_uppercase + string.digits, k=10),
+        )
         phone_number = "".join(
-            random.choices(string.ascii_uppercase + string.digits, k=10)
-        )  # noqa :E501
+            random.choices(string.ascii_uppercase + string.digits, k=10),
+        )
         customer_data = {
             "name": name,
             "location": location,
@@ -49,13 +54,14 @@ class CustomerCRUDTestCase(APITestCase):
         customer = CustomerFactory.create()
         old_name = customer.name
         new_name = "".join(
-            random.choices(string.ascii_uppercase + string.digits, k=10)
-        )  # noqa :E501
+            random.choices(string.ascii_uppercase + string.digits, k=10),
+        )
         assert old_name != new_name
 
         resp = self.client.patch(
-            f"/customers/{customer.id}/", data={"name": new_name}
-        )  # noqa :E501
+            f"/customers/{customer.id}/",
+            data={"name": new_name},
+        )
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.json()["name"], new_name)
 

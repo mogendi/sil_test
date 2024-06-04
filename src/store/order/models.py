@@ -13,3 +13,4 @@ class OrderItems(BaseModel):
     order = models.ForeignKey(
         Order, related_name="orderitems", on_delete=models.CASCADE
     )
+    amount = models.IntegerField()
