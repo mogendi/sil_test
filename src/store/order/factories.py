@@ -24,3 +24,4 @@ class OrderItemFactory(factory.django.DjangoModelFactory):
 
     product = factory.SubFactory(ProductFactory)
     order = factory.SubFactory(OrderFactory)
+    amount = 1

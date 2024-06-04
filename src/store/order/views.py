@@ -1,7 +1,6 @@
-from order.models import Order
+from order.models import Order, OrderItems
 from order.serializer import OrderItemSerializer, OrderSerializer
-from order.tasks import send_conformation_sms
-from rest_framework import status
+from rest_framework import permissions, status
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
@@ -10,6 +9,7 @@ from rest_framework.viewsets import ModelViewSet
 class OrderViewset(ModelViewSet):
     serializer_class = OrderSerializer
     queryset = Order.objects.prefetch_related("orderitems").all()
+    permission_classes = [permissions.IsAuthenticated]
 
     def create(self, request: Request):
         pre_validation_data = request.data.copy()
@@ -25,11 +25,22 @@ class OrderViewset(ModelViewSet):
             item_serialized.is_valid(raise_exception=True)
             item_serialized.save()
 
-        send_conformation_sms.delay(
-            order.customer_id,
-            f"Your order has been confirmed! Order number {order.id}",
-        )
-
         return Response(
             data=OrderSerializer(order).data, status=status.HTTP_201_CREATED
         )
+
+    def update(self, request, pk: str, **kwargs):
+        items = []
+        order = Order.objects.get(pk=pk)
+        OrderItems.objects.filter(order=order).delete()
+        if "items" in request.data:
+            for item in request.data["items"]:
+                item["order"] = pk
+            item_serialized = OrderItemSerializer(
+                data=request.data["items"],
+                many=True,
+            )
+            item_serialized.is_valid(raise_exception=True)
+            items = item_serialized.save()
+            order.orderitems.set(items)
+        return super().update(request, pk, **kwargs)

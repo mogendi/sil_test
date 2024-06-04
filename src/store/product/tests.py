@@ -1,11 +1,17 @@
 import random
 import string
 
+from customer.factories import UserFactory
+from django.contrib.auth.models import User
 from product.factories import ProductFactory
 from rest_framework.test import APITestCase
 
 
 class ProductCRUDTestCase(APITestCase):
+    def setUp(self) -> None:
+        user: User = UserFactory.create()
+        self.client.force_authenticate(user=user)
+
     def test_product_list(self) -> None:
         products = ProductFactory.create_batch(size=5)
         product_ids = [str(product.id) for product in products]
@@ -26,8 +32,8 @@ class ProductCRUDTestCase(APITestCase):
 
     def test_product_create(self) -> None:
         name = "".join(
-            random.choices(string.ascii_uppercase + string.digits, k=10)
-        )  # noqa :E501
+            random.choices(string.ascii_uppercase + string.digits, k=10),
+        )
         price = random.uniform(1.0, 1000.0)
         product_data = {"name": name, "price": price}
 
@@ -40,13 +46,14 @@ class ProductCRUDTestCase(APITestCase):
         product = ProductFactory.create()
         old_name = product.name
         new_name = "".join(
-            random.choices(string.ascii_uppercase + string.digits, k=10)
-        )  # noqa :E501
+            random.choices(string.ascii_uppercase + string.digits, k=10),
+        )
         assert old_name != new_name
 
         resp = self.client.patch(
-            f"/products/{product.id}/", data={"name": new_name}
-        )  # noqa :E501
+            f"/products/{product.id}/",
+            data={"name": new_name},
+        )
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.json()["name"], new_name)
 

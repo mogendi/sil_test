@@ -1,12 +1,18 @@
+import json
 from unittest import mock
 
-from customer.factories import CustomerFactory
+from customer.factories import CustomerFactory, UserFactory
+from django.contrib.auth.models import User
+from django.test import TransactionTestCase
 from order.factories import OrderFactory
 from product.factories import ProductFactory
-from rest_framework.test import APITestCase
 
 
-class orderCRUDTestCase(APITestCase):
+class OrderCRUDTestCase(TransactionTestCase):
+    def setUp(self) -> None:
+        user: User = UserFactory.create()
+        self.client.force_login(user=user)
+
     def test_order_list(self) -> None:
         orders = OrderFactory.create_batch(size=5)
         order_ids = [str(order.id) for order in orders]
@@ -25,29 +31,38 @@ class orderCRUDTestCase(APITestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.json()["id"], str(order.id))
 
-    @mock.patch("order.tasks.send_conformation_sms.delay")
+    @mock.patch("order.signals.send_conformation_sms.delay")
     def test_order_create(self, mock_send_confirmation_sms: mock.Mock) -> None:
         order_data = {
-            "customer": CustomerFactory.create().pk,
+            "customer": str(CustomerFactory.create().pk),
             "items": [
-                {"product": ProductFactory.create().pk},
-                {"product": ProductFactory.create().pk},
+                {"product": str(ProductFactory.create().pk), "amount": 1},
+                {"product": str(ProductFactory.create().pk), "amount": 1},
             ],
         }
 
-        resp = self.client.post("/orders/", data=order_data, format="json")
+        resp = self.client.post(
+            "/orders/",
+            data=json.dumps(order_data),
+            content_type="application/json",
+        )
         self.assertEqual(resp.status_code, 201)
         self.assertGreaterEqual(len(resp.json()["items"]), 2)
         mock_send_confirmation_sms.assert_called()
 
     def test_order_update(self) -> None:
         order = OrderFactory.create()
-        new_item = {"product": ProductFactory.create().pk}
+        product_id = str(ProductFactory.create().pk)
+        new_item = {"product": product_id, "amount": 1}
 
         resp = self.client.patch(
-            f"/orders/{order.id}/", data={"items": new_item}, format="json"
+            f"/orders/{order.id}/",
+            data=json.dumps({"items": [new_item]}),
+            content_type="application/json",
         )
         self.assertEqual(resp.status_code, 200)
+        returned_items = [item["product"] for item in resp.json()["items"]]
+        assert product_id in returned_items
 
     def test_order_delete(self) -> None:
         order = OrderFactory.create()
