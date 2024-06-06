@@ -6,12 +6,15 @@ from django.contrib.auth.models import User
 from django.test import TransactionTestCase
 from order.factories import OrderFactory
 from product.factories import ProductFactory
+from rest_framework.test import APIClient
 
 
 class OrderCRUDTestCase(TransactionTestCase):
+    client_class = APIClient
+
     def setUp(self) -> None:
         user: User = UserFactory.create()
-        self.client.force_login(user=user)
+        self.client.force_authenticate(user=user)
 
     def test_order_list(self) -> None:
         orders = OrderFactory.create_batch(size=5)
