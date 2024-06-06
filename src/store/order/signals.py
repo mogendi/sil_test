@@ -14,7 +14,7 @@ def send_notification_on_forum_create(
 ) -> None:
     if created:
         transaction.on_commit(
-            lambda: send_conformation_sms.delay(
+            lambda: send_conformation_sms(
                 instance.customer_id,
                 f"Your order has been confirmed! Order number {instance.id}",
             )
