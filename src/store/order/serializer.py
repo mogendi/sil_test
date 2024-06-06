@@ -6,9 +6,10 @@ from rest_framework import serializers
 
 class OrderSerializer(serializers.ModelSerializer):
     items = serializers.SerializerMethodField()
+    total_price = serializers.ReadOnlyField()
 
     class Meta:
-        fields = "__all__"
+        fields = ("id", "customer", "total_price", "items")
         model = Order
 
     def get_items(self, obj: Order) -> "List[OrderItemSerializer]":
