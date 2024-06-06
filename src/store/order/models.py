@@ -7,6 +7,10 @@ from product.models import Product
 class Order(BaseModel):
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
 
+    @property
+    def total_price(self) -> float:
+        return sum([item.product.price for item in self.orderitems.all()])
+
 
 class OrderItems(BaseModel):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)

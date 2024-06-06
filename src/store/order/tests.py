@@ -36,11 +36,13 @@ class OrderCRUDTestCase(TransactionTestCase):
 
     @mock.patch("order.signals.send_conformation_sms.delay")
     def test_order_create(self, mock_send_confirmation_sms: mock.Mock) -> None:
+        p1 = ProductFactory.create(price=1)
+        p2 = ProductFactory.create(price=1)
         order_data = {
             "customer": str(CustomerFactory.create().pk),
             "items": [
-                {"product": str(ProductFactory.create().pk), "amount": 1},
-                {"product": str(ProductFactory.create().pk), "amount": 1},
+                {"product": str(p1.pk), "amount": 1},
+                {"product": str(p2.pk), "amount": 1},
             ],
         }
 
@@ -51,6 +53,7 @@ class OrderCRUDTestCase(TransactionTestCase):
         )
         self.assertEqual(resp.status_code, 201)
         self.assertGreaterEqual(len(resp.json()["items"]), 2)
+        self.assertEqual(resp.json()["total_price"], float(2))
         mock_send_confirmation_sms.assert_called()
 
     def test_order_update(self) -> None:
